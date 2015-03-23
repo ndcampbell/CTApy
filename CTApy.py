@@ -31,12 +31,16 @@ class CTApy:
         time_obj = time.strptime(str_time, "%Y%m%d %H:%M:%S")
         return time_obj
 
-
     #get vehicle info. Takes a list of route numbers
-    def get_vehicles(self, routes):
-        routes_str = ','.join(routes)
-        url = "%s/getvehicles?%s&rt=%s" %(self.api_url_head, self.api_url_tail, routes_str)
-        #add requests and XML parsing
+    class Vehicles:
+        def __init__(self, routes): #routes should be a list
+            self.routes = routes
+            return
+
+        def get_vehicles(self):
+            routes_str = ','.join(self.routes) #convert list to comma seperated string for URL
+            url = "%s/getvehicles?%s&rt=%s" %(self.api_url_head, self.api_url_tail, routes_str)
+            #add requests and XML parsing
 
     #gets route info
     def get_routes(self):
@@ -71,6 +75,6 @@ if __name__ == "__main__":
     apikey = config.get("API", "bus_apikey")
 
     ctapy = CTApy(apikey)
-    print ctapy.ctatime
+    print ctapy.Vehicles(['test', 3]).routes
 
 
