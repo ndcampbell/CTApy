@@ -4,19 +4,33 @@ __author__ = 'dougcampbell'
 
 import ConfigParser
 import requests
+import time
 from xml.etree import ElementTree
+
 
 class CTApy:
     def __init__(self, apikey):
         self.api_url_head = "http://www.ctabustracker.com/bustime/api/v1"
         self.api_url_tail = "key=%s" % (apikey)
+        self.testxml = """<?xml version="1.0"?>
+        <bustime-response>
+        <tm>20090611 14:42:32</tm>
+        </bustime-response>"""
+        self.ctatime = self.get_ctatime()
 
     #get master time from CTA for syncing
     def get_ctatime(self):
         url = "%s/gettime?%s" % (self.api_url_head, self.api_url_tail)
         response = requests.get(url)
-        tree = ElementTree.fromstring(response.content)
-        #now do stuff to the tree to get time
+        #root = ElementTree.fromstring(response.content)
+        root = ElementTree.fromstring(self.testxml)
+        for child in root:
+            if child.tag == 'tm':
+                str_time = child.text
+        #convert to time struct object
+        time_obj = time.strptime(str_time, "%Y%m%d %H:%M:%S")
+        return time_obj
+
 
     #get vehicle info. Takes a list of route numbers
     def get_vehicles(self, routes):
@@ -57,8 +71,6 @@ if __name__ == "__main__":
     apikey = config.get("API", "bus_apikey")
 
     ctapy = CTApy(apikey)
-    print ctapy.api_url_tail
-
-
+    print ctapy.ctatime
 
 
