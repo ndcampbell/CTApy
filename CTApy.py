@@ -9,12 +9,19 @@ from xml.etree import ElementTree
 
 
 class CTApy:
+    api_url_head = "http://www.ctabustracker.com/bustime/api/v1"
+    api_url_tail = "key=%s" % (apikey)
     def __init__(self, apikey):
         self.api_url_head = "http://www.ctabustracker.com/bustime/api/v1"
         self.api_url_tail = "key=%s" % (apikey)
         self.testxml = """<?xml version="1.0"?>
         <bustime-response>
+        <test>
         <tm>20090611 14:42:32</tm>
+        </test>
+        <test>
+        <vid>1234</vid>
+        </test>
         </bustime-response>"""
         self.ctatime = self.get_ctatime()
 
@@ -24,7 +31,7 @@ class CTApy:
         response = requests.get(url)
         #root = ElementTree.fromstring(response.content)
         root = ElementTree.fromstring(self.testxml)
-        for child in root:
+        for child in root.iter():
             if child.tag == 'tm':
                 str_time = child.text
         #convert to time struct object
@@ -33,13 +40,22 @@ class CTApy:
 
     #get vehicle info. Takes a list of route numbers
     class Vehicles:
+        #todo: plan for vid and routes
         def __init__(self, routes): #routes should be a list
             self.routes = routes
             return
 
         def get_vehicles(self):
+            vehicles_dict = {}
             routes_str = ','.join(self.routes) #convert list to comma seperated string for URL
-            url = "%s/getvehicles?%s&rt=%s" %(self.api_url_head, self.api_url_tail, routes_str)
+            url = "%s/getvehicles?%s&rt=%s" %(CTApy.api_url_head, CTApy.api_url_tail, routes_str)
+            root = ElementTree.fromstring(self.testxml)
+            for child in root.iter():
+                print child.tag
+
+
+
+
             #add requests and XML parsing
 
     #gets route info
@@ -75,6 +91,6 @@ if __name__ == "__main__":
     apikey = config.get("API", "bus_apikey")
 
     ctapy = CTApy(apikey)
-    print ctapy.Vehicles(['test', 3]).routes
+    print ctapy.Vehicles(['test', '3']).get_vehicles()
 
 
